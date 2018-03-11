@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Number guessing game</title>
+  <style>
+    html {
+      font-family: sans-serif;
+    }
+
+    body {
+      width: 50%;
+      max-width: 800px;
+      min-width: 480px;
+      margin: 0 auto;
+    }
+
+    .lastResult {
+      color: white;
+      padding: 3px;
+    }
+  </style>
+</head>
+
+<body>
+<h1>Number guessing game</h1>
+<p>We have selected a random number between 1 and 100. See if you can guess it in 10 turns or less. We'll tell you if your guess was too high or too low.</p>
+<div class="form">
+  <label for="guessField">Enter a guess: </label>
+  <input type="text" id="guessField" class="guessField">
+  <input type="submit" value="Submit guess" class="guessSubmit">
+</div>
+<div class="resultParas">
+  <p class="guesses"></p>
+  <p class="lastResult"></p>
+  <p class="lowOrHi"></p>
+</div>
+</body>
+
+<script>
+  // Your JavaScript goes here
+  var randomNumber = Math.floor(Math.random() * 100) + 1; // 1과 100 상이의 숫자 중 무작위로 추출한다.
+  var guesses = document.querySelector('.guesses');
+  var lastResult = document.querySelector('.lastResult');
+  var lowOrHi = document.querySelector('.lowOrHi');
+  var guessSubmit = document.querySelector('.guessSubmit');
+  var guessField = document.querySelector('.guessField');
+  var guessCount = 1;
+  var resetButton;
+
+  function checkGuess() { //  1부터 플레이어의 차례를기록한다.
+    var userGuess = Number(guessField.value);
+    console.log(userGuess);
+    if (guessCount === 1) {
+      guesses.textContent = 'Previous guesses: ';
+    }
+
+    guesses.textContent += userGuess + ' ';
+
+    // 데이터 저장을 위한 변수 추가
+    if (userGuess === randomNumber) { // 만약 일치한다면: 1) 축하 메시지를 표시한다. 2) 더 이상 숫자를 맞출피요가 없다. 3) 플레이어가 다시 게임을 할지 묻는다
+      lastResult.textContent = 'Congratulations! You got it right!';
+      lastResult.style.backgroundColor = 'green';
+      lowOrHi.textContent = '';
+      setGameOver();
+    } else if (guessCount === 10) { // 숫자가 틀력고 차례까 없다면: 1) 게임이 종료되었음을 알린다. 2) 더 이상 숫자를 맞출필요가 없다. 3) 플레이어가 다시 게임을 할지 묻는다.
+      lastResult.textContent = '!!!GAME OVER!!!';
+      lowOrHi.textContent = '';
+      setGameOver();
+    } else {  // 숫자가 틀력고, 차례까 남아있다면: 1) 틀렸다고 알린다. 2) 다른 숫자를 입력할 수 있도록 한다. 3) 플레이어가 다시 게임을 할지 묻는다.
+      lastResult.textContent = 'Wrong!';
+      lastResult.style.backgroundColor = 'red';
+      if(userGuess < randomNumber) {
+        lowOrHi.textContent='Last guess was too low!' ;
+      } else if(userGuess > randomNumber) {
+        lowOrHi.textContent = 'Last guess was too high!';
+      }
+    }
+
+    guessCount++;
+    guessField.value = '';
+  }
+
+  guessSubmit.addEventListener('click', checkGuess);
+
+  function setGameOver() {
+    guessField.disabled = true;
+    guessSubmit.disabled = true;
+    resetButton = document.createElement('button');
+    resetButton.textContent = 'Start new game';
+    document.body.appendChild(resetButton);
+    resetButton.addEventListener('click', resetGame);
+  }
+
+  function resetGame() {
+    guessCount = 1;
+    var resetParas = document.querySelectorAll('.resultParas p');
+    for(var i = 0 ; i < resetParas.length ; i++) {
+      resetParas[i].textContent='';
+    }
+
+    resetButton.parentNode.removeChild(resetButton);
+    guessField.disabled = false;
+    guessSubmit.disabled = false;
+    guessField.value='';
+    guessField.focus();
+    lastResult.style.backgroundColor='white';
+    randomNumber=Math.floor(Math.random() * 100) + 1;
+  }
+</script>
+
+</html>
