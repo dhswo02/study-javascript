@@ -820,4 +820,4 @@ arguments 객체를 통해 전달 인자값의 정보를 제공받을 수 있다
 이를 통해 자신의 부모 역할을 하는 프로토타입 객체를 가리킨다.<br/>
 함수 객체의 부모 역할을 하는 프로토타입 객체를 Function.prototype 객체라고 명명한다. 이것 역시 함수를 객체라고 정의하는 바 이다.
 
-[Function.prototype 함수 객체의 부모는 자바스크립트의 모든 객체의 조상격인 Object.prototype 객체이다.Function.prototype 함수 객체의 부모는 자바스크립트의 모든 객체의 조상격인 Object.prototype 객체이다.<br/>위 결과를 살펴보면, Function Prototype 객체의 __proto__ 프로퍼티는 Object.prototype 객체를 가리키고 있다.]
+/* Function.prototype 함수 객체의 부모는 자바스크립트의 모든 객체의 조상격인 Object.prototype 객체이다.Function.prototype 함수 객체의 부모는 자바스크립트의 모든 객체의 조상격인 Object.prototype 객체이다.<br/>위 결과를 살펴보면, Function Prototype 객체의 __proto__ 프로퍼티는 Object.prototype 객체를 가리키고 있다. */
