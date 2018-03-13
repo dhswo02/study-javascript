@@ -1107,18 +1107,18 @@ sayFoo() 함수 호출시, this 는 전역 객체에 바인딩 된다.
     var myObject = {
         value: 1,
         func1: function() {
-            var that = this;
+            var _this = this;
             
             this.value += 1;
             console.log('func1() called. this.value : ' + this.value);
             
             func2 = function() {
-                that.value += 1;
-                console.log('func2() called. this.value : ' + that.value);
+                _this.value += 1;
+                console.log('func2() called. this.value : ' + _this.value);
                 
                 func3 = function() {
-                    that.value += 1;
-                    console.log('func3() called. this.value : ' + that.value);
+                    _this.value += 1;
+                    console.log('func3() called. this.value : ' + _this.value);
                 }
                 
                 func3();
@@ -1145,6 +1145,640 @@ new 연산자로 자바스크립트 함수를 생성자로 호출하면
     이후 생성자 함수의 코드 내부에서 사용된 this 는 이 빈 객체를 가리킨다.<br/>
     생성자 함수가 생성한 객체는 자신을 생성한 생성자 함수의 prototype 프로퍼티가 가리키는 객체를 자신의 프로토타입 객체로 설정한다.
     
+ 2) this 를 통한 프로퍼티 생성
+ 
+    함수 코드 내부에서 this 를 사용, 앞서 생성된 빝 객체에 동적으로 프로퍼티나 메서드가 생성 가능하다.
     
+ 3) 생성된 객체 리턴
+ 
+    특별하게 리턴문이 없을 경우, this 로 바인딩된 새로 생성한 객체가 리턴된다.<br/>
+    일반 함수는 리턴문이 없을 경우 undefined 가 리턴되지만 생성자 함수는 새로 생성한 객체가 리턴된다.<br/>
+    하지만, 리턴값이 새로 생성한 객체(this)가 아닌 다른 객체를 반환하는 경우, this 가 아닌 다른 객체가 리턴되어 버린다.
+    
+        var Person = function(name) {
+            this.name = name;
+        } 
+        
+        var foo = new Person('foo');
+        console.log(foo.name);  // foo
 
+    새롭게 객체를 생성하고 생성자 함수 코드에서 사용되느 this 로 바인딩된다.<br/>
+    this 가 가리키는 빈 객체에 name 이라는 동적 프로퍼티를 생성했다.<br/>
+    리턴값이 특별히 없으므로 this 로 바인딩한 객체가 생성자 함수의 리턴값으로 반환돼서, foo 변수에 저장된다.
     
+    **※객체 리터럴 방식과 생성자 함수를 통한 객체 생성 방식의 차이**
+    
+        // 객체 리터럴 방식으로 foo 객체 생성
+        var foo = {
+            name: 'foo',
+            age: 26,
+            gender: 'man'
+        };
+        console.dir(foo);
+            
+        // 생성자 함수
+        function Person(name, age, gender, position) {
+            this.name = name;
+            this.age = age;
+            this.gender = gender;
+        }
+        
+        // Person 생성자 함수를 이용해 bar 객체, baz 객체 생성
+        var bar = new Person('bar', 22, 'woman');
+        console.dir(bar);
+        
+        var baz = new Person('baz', 24, 'woman');
+        console.dir(baz);
+        
+       객체 리터럴 방식과 생성자 함수 방식의 차이가 프로토타입 객체(\_\_proto\_\_ 프로퍼티)에 있을을 알 수 있다.<br/>
+       객체 리터럴 방식의 경우는 자신의 프로토타입 객체가 Object(Object.prototype)로, 생성자 함수 방식의 경우 Person(Person.prototype)으로 서로 다른다.
+       
+       위와 같은 차이가 발생하는 이유는, 자바스크립트 객체 생성 규치 때문이다.<br/>
+       자바스크립트 객체는 자신을 생성한 생성자 함수의 prototype 프로퍼티가 가리키는 객체를 자신의 프로토타입 객체로 설정한다.<br/>
+       객체 리터럴 방식에서는 객체 생성자 함수는 Object()이다. 생성자 함수 방식의 경우는 생성자 함수 자체, 예제에서느 Person() 이다.
+       
+    **※생성자 함수를 new 를 붙이지 않고 호출할 경우**
+    객체 생성을 목적으로 작성한 생성자 함수를 new 없이 호출하거나 일반 함수를 new 를 붙여서 호출 할 경우 코드에서 오류가 발생 할 수 있다. 이유는 this 바인딩 방식이 다르기 때문이다.
+    
+        // 생성자 함수
+        function Person(name, age, gender, position) {
+            this.name = name;
+            this.age = age;
+            this.gender = gender;
+        }
+        
+        var qux = Person('qux', 20, 'man');
+        console.log(qux);   // undefined
+        
+        console.log(window.name);   // qux
+        console.log(window.age);    // 20
+        console.log(window.gender); // man
+        
+       Person 생성자 함수를 new 없이 호출할 경우, this 는 함수 호출이므로 전역 객체인 window 객체로 바인딩된다.<br/>
+       의도와 다르게 window 객체에 동적으로 name, age, gender 프로퍼티가 생성된다.<br/>
+       생성자 함수는 별도의 리턴값이 없을 경우, 새로 생성된 객체가 리턴된다.<br/>
+       하지만 new 없이 일반 함수를 호출할 때 처럼 호출하면 undefined 가 리턴된다.
+       
+    **※생성자 함수를 강제로 인스턴스하여 new 없이 사용되는 위험을 피하기**
+    
+        function A(arg) {
+            if (!(this instanceof arguments.callee)) return new arguments.callee(arg);
+            this.value = arg ? arg : 0;
+        }
+        
+        var a = new A(100);
+        var b = A(10);
+        
+        console.log(a.value);
+        console.log(b.value);
+        console.log(window.value);
+        
+> call 과 apply 메서드를 이용한 명시적인 this 바인딩
+
+this 를 특정 객체에 명시적으로 바인딩시키는 방법도 제공한다.<br/>
+이를 가능하게 하는 것이 바로 apply() 와 call() 메서드이다.<br/>
+모든 함수의 부모 객체인 Function.prototype 객체의 메서드이다.
+
+    function.apply(thisArg, argArray)
+    
+call() 과 apply() 메서드는 기능이 같고 단지 넘겨받는 인자의 형식만 다르다.<br/>
+apply() 메서드를 호출하는 주체가 함수고, apply() 메서드도 this 를 특정 객체에 바인딩할 뿐 결국 본질적인 기능은 함수 호출이라는 것이다.
+
+만일 Person.apply() 이렇게 호출한다면 이것의 기본적인 기능은 Person() 함수를 호출하는 것이다.<br/>
+apply() 메서드의 첫 번째 인자 thisArg 는 apply() 메서드를 호출한 하수 내부에서 사용한 this 에 바이딩할 객체를 가리킨다.<br/>
+첫 번째 인자로 넘긴 객체가 this 로 명시적으로 바인딩되는 것이다.<br/>
+두 번째 argArray 인자는 함수를호출할 때 넘길 인자들의 배열을 가리킨다.<br/>
+apply() 메서드의 기능도 결국 함수를 호출하는 것이므로, 함수에 넘길 인자를 argArray 배열로 넘긴다.
+
+    function Person(name, age, gender) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+    }    
+    
+    var foo = {};
+    
+    // apply() 메서드 호출
+    Person.apply(foo, ['foo', 30, 'man']);
+    console.dir(foo);
+    
+위 코드는 Person('foo', 30, 'man') 함수를 홀추하면서, this 를 foo 객체에 명시적으로 바인딩 한다는 것이다.<br/>
+call() 메서드의 경우는 apply() 와 기능은 같지만, apply() 의 두 번째 인자에서 배열 형태로 넘긴 것을 각각 인자로 넘긴다.
+
+    Person.call(foo, 'foo', 30, 'man');
+    
+이러한 apply() 나 call() 메서드는 this 를 원하는 값으로 명시적으로 매핑해서 특정 함수나 메서드를 호출 할 수 있다.<br/>
+아래는 유사 배열 객체에서 배열 메서드를 사용하는 코드
+
+    function myFunction() {
+        console.dir(arguments);
+        
+        // arguments.shift();   // Error
+        
+        // arguments 객체를 배열로 변환
+        var args = Array.prototype.slice.apply(arguments);
+        console.dir(args);
+    }    
+
+    myFunction(1,2,3)
+    
+'Array.prototype.slice() 메서드를 호출해라. 이때 this 는 arguments 객체로 바인딩해라.'<br/>
+결국 이 말은 arguments 객체가 Array.prototype.slice() 메서드를 마치 자신의 메서드인 양 arguments.slice() 와 같은 형태로 메서드 호출하라는 것이다.
+
+# 16. 함수의 리턴
+자바스크립트 함수는 항상 리턴값을 반환한다.<br/>
+특히, return 문을 사용하지 않더라도 항상 리턴값을 전달하도록 되어 있다.
+
+> 일반 함수나 메서드는 리턴값을 지정하지 않을 경우, undefined 값이 리턴된다.
+
+    var noReturnFunc = function() {
+        console.log('This function has no return statement.');
+    };
+    
+    var result = noReturnFunc();
+    console.log(result);    // undefiend
+    
+> 생성자 함수에서 리턴값을 지정하지 않을 경우 생성된 객체가 리턴된다.
+
+생성자 함수에서 별도의 리턴값을 지정하지 않을 경우 this 로 바인딩된 새로 생성된 객체가 리턴된다.<br/>
+때문에 생성자 함수에서는 일반적으로 리턴값을 지정하지 않는다.
+
+    function Person(name, age, gender) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        
+        // 명시적으로 다른 객체 반환
+        return {name:'bar', age:20, gender: 'woman'};
+    }    
+    
+    var foo = new Person('foo', 30, 'man');
+    console.dir(foo);
+    
+생성자 함수의 리턴값으로 넘긴 값이 객체가아닌 불린, 숫자, 문자열일 경우는 이러한 리턴값을 무시하고 this 로 바인딩된 객체가 리턴된다.
+
+# 17. 자바스크립트 프로토타입
+자바스크립트의 모든 객체는 자신의 부모인 프로토타입 객체를 가리키는 참조 링크 형태의 숨겨진 프로퍼티가 있다.
+
+모든 함수는 객체로서 prototype 프로퍼티를 가지고 있다.<br/>
+여기서 주의할 것은 함수 객체의 prototype 프로퍼티는 모든 객체의 부모를 나타내느 내부 프로퍼티인 \[\[Prototype\]\] 과 혼동하지 말아야한다.
+
+두 프로퍼티 모두 프로토타입 객체를 가리킨다는 점에서 공통점이 있다.<br/>
+\[\[Prototype\]\] 는 객체 입장에서 자신의 부모 역할을 하는 프로토타입 객체를 가리킨다.
+
+함수 객체가 가지는 prototype 프로퍼티는 이 함수가 생성자로 사용될 때 이 함수를 통해 생성된 객체의 부모 역할을 하는 프로토타입 객체를 가리킨다.
+
+정리하자면, <br/>
+자바스크립트에서 모든 객체는 자신을 생성한 생성자 함수의 prototype 프로퍼티가 가리키는 프로토타입 객체를 자신의 부모 객체로 설정하는 \[\[Prototype\]\] 링크로 연결한다.
+
+    function Person(name) {
+        this.name = name;
+    }
+    
+    var foo = new Person('foo');
+    
+    console.dir(Person);
+    console.dir(foo);
+    
+Person() 생성자 함수는 prototype 프로퍼티로 자신과 링크된 프로토타입 객체를 가리킨다.<br/>
+Person() 생성자 함수로 생성된 foo 객체는 Person() 함수의 프로토타입 객체를 \[\[Prototype\]\] 링크로 연결한다.
+
+**\[\[Prototype\]\] 링크(크롬 브라우저에선 \_\_proto\_\_)는 객체의 입장에서 자신의 부모 객체인 프로토타입 객체를 내부의 숨겨진 링크로 가리키고 있다.**
+
+결국 자바스크립트에서 객체를 생성하는 건 생성자 함수의 역할이지만, 생성된 객체의 실제 부모 역할을 하는 건 생성자 자신이 아닌 생성자의 prototype 프로퍼티가 가리키는 프로토타입 객체다.
+
+# 18. 프로토타입 체이닝
+
+자바스크립트에서 객체는 자기 자신의 프로퍼티뿐만 아니라, 자신의 부모역할을 하는 프로토타입 객체의 프로퍼티 또한 마치 자신의 것처럼 접근하는 게 가능하다.<br/>
+이것을 바로 '프로토타입 체이닝'이다.
+
+> 객체 리터럴 방식에서의 프로토타입 체이닝
+
+    var myObj = {
+        name: 'foo',
+        sayName: function() {
+            console.log('My Name is ' + this.name);
+        }
+    };
+    
+    myObj.sayName();
+    console.log(myObj.hasOwnProperty('name'));
+    console.log(myObj.hasOwnProperty('nickName'));
+    myObj.sayNickName();    
+
+객체 리터럴 방식은 Object() 라는 내장 생성자 함수로 생성된 것이다.<br/>
+Object() 생성자 함수도 함수 객체이므로 prototype 이라는 프로퍼티 속성이 있다.<br/>
+따라서, Object() 함수의 prototype 프로퍼티가 가리키는 Object.prototype 객체를 자신의 프로포타입 객체로 연결한다.
+
+<img src="http://cfile22.uf.tistory.com/image/2761F23B56AB067F08A06D">
+
+   - *프로토타입 체이닝 개념*<br/>
+     **자바스크립트에서 특정 객체의 프로퍼티나 메서드에 접근 할 때, 해당 객체에 접근하려는 프로퍼티 또는 메서드가 없다면 \[\[Prototype\]\] 링크를 따라 자신의 부모 역할을 하는 프로포타입 객체의 프로퍼티를 차례대로 검색하는 것**
+     
+> 생성자 함수로 생성된 객체의 프로토타입 체이닝
+
+자바스크립트에서 모든 객체는 자신을 생성한 생성자 함수의 prototype 프로퍼티가 가리키는 객체를 자신의 프로토타입 객체(부모 객체)로 취급한다.
+
+    function Person(name, age, hobby) {
+        this.name = name;
+        this.age = age;
+        this.hobby = hobby;
+    }
+    
+    var foo = new Person('foo', 30, 'tennis');
+    
+    console.log(foo.hasOwnProperty('name'));    // true
+    
+    console.dir(Person.prototype);
+    
+위 예제에서 foo 객체의 프로토타입 객체는 Person.prototype 이 된다.<br/>
+hasOwnProperty() 메서드가 호출 될 때, foo 객체는 자신에게 없어서 프로토타입 체이닝으로 부모 객체인 Person.prototype 객체에서 hasOwnProperty() 메서드를 찾는다.<br/>
+하지만 Person.prototype 에는 constructor 프로퍼티만을 가진 객체이므로 메서드가 없다.<br/>
+Person.prototype 객체도 자바스크립트 객체이므로 Object.prototype 을 프로토타입 객체로 가진다.<br/>
+프로토타입 체이닝은 Object.prototype 객체로 계속 이어진다. hasOwnProperty() 메소드를 찾고 실행 시킨다.
+    
+<img src="http://cfile27.uf.tistory.com/image/25476B3B56AB067F207AAE">
+
+*※ 프로토타입 체닝의 종점*<br/>
+**자바스크립트에서 Object.prototype 객체는 프로토타입 체이닝의 종점이다.<br/>
+모든 자바스크립트 객체는 프로토타입 체이닝으로 Object.prototype 객체가 가진 프로퍼티와 메서드에 접근하고 서로 공유가 가능하다.**
+
+# 20. 프로토타입 메서드와 this 바인딩
+
+메서드 호출 패턴에서의 this 는 그 메서드를 호출한 객체에 바인딩 된다.<br/>
+프로토아비 객체 내의 메서드 또한 규칙이 그대로 적용된다.
+
+    function Person(name) {
+        this.name = name;
+    }
+    
+    Person.prototype.getName = function() {
+        return this.name;
+    }
+    
+    var foo = new Person('foo');
+    console.log(foo.getName()); // foo
+    
+    Person.prototype.name = 'person';
+    console.log(Person.prototype.getName());    // person
+    
+getName() 메서드를 호출한 객체는 foo 이므로, this 는 foo 객체에 바인딩된다.<br/>
+따라서 foo.getName() 의 결과값으로 foo 가 출력된다.<br/>
+Person.prototype.getName() 와 같이 메서드를 바로 호출하면,<br/>
+이때는 getName() 메서드를 호출한 객체가 Person.prototype 이므로 this 도 여기에 바인딩된다.    
+
+
+# 22. 자바스크립트 실행 컨텍스트
+
+> 실행 컨텍스트의 개념
+
+기존 여러 언어들에는 '콜 스택' 이란 것이 존자한다.<br/>
+콜 스택이란 함수를 호출할 때 해당 함수의 호출 정보가 차곡차곡 쌓여있는 스택을 의미한다.
+
+**실행 가능한 자바스크립트 코드 블록이 실행되는 환경**
+
+실행 컨텍스트가 형성되는 경우를 세 가지로 규정
+ - 전역 코드
+ - eval() 함수로 실행되는 코드
+ - 함수 안의 코드를 실행 할 경우
+ 
+ 
+    console.log('This is global context');
+    
+    function ExContext1() {
+        console.log('This is ExContext1');
+    };
+    
+    function ExContext2() {
+        ExContext1();
+        console.log('This is Excontext2');
+    }; 
+    
+    ExContext2();
+    
+> 실행 컨텍스트 생성 과정
+
+1) 활성 객체 생성
+    
+   <img src="http://cfile21.uf.tistory.com/image/272B2C3A56AB10C62D16CA" style="max-width:100%;height:auto" width="263" height="229" filename="컨텍스트2.png" filemime="image/jpeg">
+   
+   실행 컨텍스트가 생성되면 자바스크립트 엔진은 해당 컨텍스트에서 실행에 필요한 여러가지 정보를 담은 객체를 생성한다.<br/>
+   이를 '활성객체'라고 한다.<br/>
+   이 객체에 앞으로 매개변수나 사용자가 정의한 변수 밑 객체를 저장하고, 새로 만들어진 컨텍스트로 접근 가능하게 되어있다.<br/>
+   이는 엔진 내부에서 접근할 수 있다는 것이지 사용자가 접근할 수 있다는 것은 아니다.
+   
+2) arguments 객체 생성
+   
+   <img src="http://cfile26.uf.tistory.com/image/2445E03A56AB10C6206385" style="max-width:100%;height:auto" width="258" height="236" filename="컨텍스트3.png" filemime="image/jpeg">
+   
+   앞서 만들어진 활성 객체는 arguments 프로퍼티로 이 arguments 객체를 참조한다.
+   
+3) 스코프 정보 생성   
+   
+   <img src="http://cfile22.uf.tistory.com/image/2660123A56AB10C7122D1D" style="max-width:100%;height:auto" width="261" height="237" filename="컨텍스트4.png" filemime="image/jpeg">
+   
+   현재 컨텍스트의 유효 범위를 나타내는 스코프 정보를 생성한다.<br/>
+   이 스코프 정보는 현재 실행 중인 실행 컨텍스트 안에서 연결 리스트와 유사한 형식으로 만들어진다.<br/>
+   현재 컨텍스트에서 특정 변수에 접근해야 할 경우, 이 리스트를 활용한다.<br/>
+   이 리시트로 현재 컨텍스트의 변수뿐 아니라, 상위 실행 컨텍스트의 변수도 접근이 가능하다.<br/>
+   이 리스트에서 찾지 못한 변수는 결국 정의되지 않은 변수에 접근하는 것으로 판단하여 에러를 검출한다.<br/>
+   이 리스트를 스코프 체인이라고 하는데, \[\[Scope\]\] 프로퍼티로 참조한다.<br/>
+   현재 생성된 활성 객체가 스코프 체인의 제일 앞에 추가되며 함수의 인자나 지역 변수 등에 접근 가능하다.
+   
+4) 변수 생성
+    
+   <img src="http://cfile22.uf.tistory.com/image/2548383A56AB10C81E149C" style="max-width:100%;height:auto" width="256" height="332" filename="컨텍스트5.png" filemime="image/jpeg">
+   
+   현재 실행 컨텍스트 내부에서 사용되는 지역 변수의 생성이 이루어진다.<br/>
+   실제적으로 앞서 생성된 활성 객체가 변수 객체로 사용된다.<br/>
+   활성 객체나 변수 객체는 같은 말이다.<br/>
+   이 과정에서 함수 안에 정의된 지역 변수나 내부 함수가 생성된다.<br/>
+   주의할 점은 변수나 내부 함수들은 단지 메모리에 생성되는 것이지 초기화는 각 변수나 함수에 해당하는 표현식이 실행되기 전까지 이루어지지 않는 다는 점이다.<br/>
+   함수 호이스팅이 궁금증이 풀리는 부분이다.
+   
+5) this 바인딩
+
+   <img src="http://cfile29.uf.tistory.com/image/2545AF3A56AB10C921D70C" style="max-width:100%;height:auto" width="260" height="336" filename="컨텍스트6.png" filemime="image/jpeg">
+   
+   마지막 단계에서 this 키워드를 사용하는 값이 할당된다.<br/>
+   this 가 참조하는 객체가 없으면 전역 객체를 참조한다. 
+
+6) 코드 실행
+
+   위 과정으로 하나의 실행 컨텍스트가 생성되고, 변수 객체가 만들어 진 후에, 코드에 있는 여러 가지 표현식 실행이 이루어진다.<br/>
+   이렇게 실행되면서 변수의 초기화 및 연산, 또 다른 함수 실행 등이 이루어진다.<br/>
+   여기서 전역 실행 컨텍스트는 arguments 객체가 없으며, 전역 객체 하나만을 포함하는 스코프 체인이 있다.<br/>
+   
+# 23. 스코프 체인
+
+자바스크립트도 다른 언어와 마찬가지로 스코프, 즉 유효 범위가 있다.<br/>
+오직 함수만이 유효 범위의 한 단위가 된다.
+
+유효 범위를 나타내는 스코프가 \[\[Scope\]\] 프로퍼티로 각 함수 객체 내에서 연결리스트 형식으로 관리되는데 이를 '스코프 체인' 이라 한다.
+
+각각의 함수는 \[\[Scope\]\] 프로퍼티로 자신이 생성된 샐행 컨텍스트의 스코프 체인을 참조한다.<br/>
+함수가 실행되는 순간 실행 컨텍스트가 만들어지고, 이 실행 컨텍스트는 실행된 함수의 \[\[Scope\]\] 프로퍼티를 기반으로 새로운 스코프 체인을 만든다.
+
+1) 전역 실행 컨텍스트의 스코프 체인
+    
+        var var1 = 1;
+        var var2 = 2;
+        console.log(var1);
+        console.log(var2);
+
+    위 예제에는 현재 전역 실행 컨텍스트 단 하나만 실행되고 있어 참조할 상위 컨텍스트가 없다.<br/>
+    자신이 최상위에 위차하는 변수 객체인 것이다.<br/>
+    따라서 이 변수 객체의 스코프 체인은 자기 자신만을 가진다.<br/>
+    다시 말해서, 변수 객체의 \[\[Scope\]\] 는 변수 객체 자신을 가리킨다.<br/>
+    이 변수 객체가 곧 전역 객체가 되는 것이다.
+    
+2) 함수를 호출한 경우 생성되는 실행 컨텍스트의 스코프 체인
+    
+        var var1 = 1;
+        var var2 = 2;
+        function func() {
+            var var1 = 10;
+            var var2 = 20;
+            console.log(var1);  // 10
+            console.log(var2);  // 20
+        }                
+        func();
+        console.log(var1);  // 1
+        console.log(var2);  // 2
+    
+    함수 객체가 생성될 때, 그 함수 객체의 \[\[Scope\]\]는 현재 실행되는 컨텍스트의 변수 객체에 있는 \[\[Scope\]\]를 그대로 가진다.<br/>
+    따라서, func 함수 객체의 \[\[Scope\]\]는 전역 변수 객체가 된다.
+    
+    func() 함수를 실행하면 새로운 컨텍스트가 만들어진다.<br/>
+    func() 함수 컨텍스트의 스코프 체인은 실행된 함수의 \[\[Scope\]\] 프로퍼티를 그대로 복사한 후, 현재 생성된 변수 객체를 복사한 스코프 체인의 맨 앞에 추가한다.
+    
+    - 각 함수 객체는 \[\[Scope\]\] 프로퍼티로 현재 컨텍스트의 스코프 체인을 참조한다.
+    - 한 함수가 실행되면 새오룬 실행 컨텍스트가 만들어지는데, 이 새로운 실행 컨텍스트는 자신이 사용할 스코프 체인을 다음과 같은 방법으로 만든다.
+        - 현재 실행되는 함수 객체의 \[\[Scope\]\] 프로퍼티를 복사하고,
+        - 새롭게 생성된 변수 객체를 해당 체인의 제일 앞에 추가한다.
+    - 요약 하면, 스코프 체인 = 현재 실행 컨텍스트의 변수 객체 + 상위 컨텍스트의 스코프 체인
+    
+    ex)
+       
+        var value = 'value1';
+        
+        function printFunc(func) {
+            var value = 'value2';
+            
+            function printValue() {
+                return value;
+            }
+            console.log(printValue());
+        }
+        
+        printFunc();
+        
+    <img src="http://cfile22.uf.tistory.com/image/22236F4456AB1945024C29" style="max-width:100%;height:auto" width="687" height="501" filename="스콥체인1.png" filemime="image/jpeg">
+     
+        var value = 'value1';
+        
+        function printValue() {
+            return value;
+        }
+        
+        function printFunc(func) {
+            var value = 'value2';
+            console.log(func());
+        }
+        
+        printFunc(printValue);
+        
+    위 예제는 각 함수 객체가 처음 생성될 당시 실행 컨텍스트가 무엇인지를 생각해야 한다.<br/>
+    각 함수 객체가 처음 생성될 때 \[\[Scope\]\]는 전역 객체의 \[\[Scope\]\]를 참조한다.<br/>
+    따라서, 각 함수가 실행될 때 생성되는 실행 컨텍스트의 스코프 체인은 전역 객체와 그 앞에 새롭게 만들어진 변수 객체가 추가된다.            
+    <img src="http://cfile2.uf.tistory.com/image/246B544456AB1946303FB3" style="max-width:100%;height:auto" width="684" height="501" filename="스콥체인2.png" filemime="image/jpeg">
+    
+    함수를 호출할 때 스코프 체인의 가장 앞에 있는 객체가 변수 객체이므로, 이 객체에 있는 공식 인자, 내부 함수, 지역 변수에 대응되는지 먼저 확인한다.<br/>
+    대응 되는 이름의 프로퍼티를 찾을 때까지 계속해서 다음 객체로 이동하며 찾는다.    
+    
+# 24. 클로저
+
+    function outerFunc() {
+        var x = 10;
+        var innerFunc = function() { console.log(x); }
+        return innerFunc;
+    }    
+    
+    var inner = outerFunc();
+    inner()
+
+<img src="http://cfile28.uf.tistory.com/image/252BCF3756AB1B77300820" style="max-width:100%;height:auto" width="683" height="480" filename="클로저1.png" filemime="image/jpeg">
+
+예제와 그림을 보면 알 수 있듯이 outerFunc 실행 컨텍스트는 사라졌지만, outerFunc 변수 객체는 여전히 남아있고, innerFunc 의 스코프 체인으로 참조되고 있다.<br/>
+이게 바로 자바스크립트에서 구현한 '클로저' 개념이다
+
+자바스크립트 함수는 일급 객체로 취급된다.<br/>
+이는 함수를 다른 함수의 인자로 넘길 수도 있고, return 으로 함수를 통째로 반환받을 수도 있다.<br/>
+앞의 예제에서 중요하게 볼 점은 최종 반환되는 함수가 외부 함수의 지역변수에 접근하고 있다는 것이 중요하다.     
+
+**이 지역변수에 접근하려면, 함수가 종료되어 외부 함수의 컨텍스트가 반환되더라도 변수 객체는 반환되는 내부 함수의 스코프 체인에 그대로 남아있다면 접근할 수 있다.**
+
+쉽게 풀어 말하면, **'이미 생명주기가 끝난 외부 함수의 변수를 참조하는 함수를 클로저라고 한다'**
+
+    function outerFunc(arg1, arg2) {
+        var local = 8;
+        function innerFunc(innerArg) {
+            console.log((arg1 + arg2)/(innerArg + local));
+        }
+        
+        return innerFunc;
+    }
+    
+    var exam1 = outerFunc(2, 4);
+    exam1(2);
+    
+위 예제에서는 outerFunc() 함수를 호출하고 반환되는 함수 객체인 innerFunc() 가 exam1 으로 참조된다.<br/>
+이것은 exam1(n)의 형태로 실행될 수 있다.
+
+여기서 outerFunc()가 실행되면서 생성되는 변수 객체가 스코프 체인에 들어가게 되고, 이 스코프 체인은 innerFunc 의 스코프 체인으로 참조된다.
+
+즉, outerFunc() 함수가 종료되었지만, 여전히 내부 함수(innerFunc())의 \[\[Scope\]\]으로 참조되므로 가비지 컬렉션의 대상이 되지 않고 여전히 접근이 가능하게 살아있다.
+
+innerFunc()에서 참조하고자 하는 변수 local 에 접근이 가능하도록 클로저가 만들어진다.<br/>
+outerFunc 변수 객체의 프로퍼티 값은 여전히 읽기 및 쓰기까지 가능하다.
+
+<img src="http://cfile1.uf.tistory.com/image/2741983756AB1B791D14B7" style="max-width:100%;height:auto" width="684" height="508" filename="클로저2.png" filemime="image/jpeg">
+
+**※ 클로저에서 접근하는 변수는 대부분이 스코프 체인 첫 번째 객체가 아닌 그 이후 객체에 존재한다. 이는 성능적인 면과 자원적인 면에서 문제를 유발시킬 수 있는 여지가 있다. 이러한 성능 이슈를 잘 해결하여 클로저를 사용해야한다.**
+
+# 25. 클로저의 활용
+
+1. 특정 함수에 사용자가 정의한 객체의 메서드 연결하기
+
+        function HelloFunc(func) {
+            this.greeting = 'hello';
+        }
+        
+        HelloFunc.prototype.call = function(func) {
+            func ? func(this.greeting) : this.func(this.greeting);
+        }
+        
+        var userFunc = function(greeting) {
+            console.log(greeting);
+        }
+        
+        var objHello = new HelloFunc();
+        objHello.func = userFunc;
+        objHello.call();
+    위 예제에서 HelloFunc()는 greeting 만을 인자로 넣어 사용자가 인자로 넘긴 함수를 실행시킨다.<br/>
+    그래서 사용자가 정의한 함수도 한 개의 인자를 받는 함수를 정의할 수 밖에 없다.
+    
+    아래의 코드는 여러 개의 인자를 받아서 클로저로 처리할 수 있도록 구현하였다.
+    
+        function HelloFunc(func) {
+            this.greeting = 'hello';
+        }        
+        
+        HelloFunc.prototype.call = function(func) {
+            func ? func(this.greeting) : this.func(this.greeting);
+        }
+        
+        var userFunc = function(greeting) {
+            console.log(greeting);
+        }
+        
+        var objHello = new HelloFunc();
+        objHello.func = userFunc;
+        objHello.call();
+        
+        function saySomething(obj, methodName, name) {
+            return (function(greeting) {
+                return obj[methodName](greeting, name);
+            });
+        }
+        
+        function newObj(obj, name) {
+            obj.func = saySomething(this, 'who', (name || 'everyone'));
+            
+            return obj;
+        }
+        
+        newObj.prototype.who = function(greeting, name) {
+            console.log(greeting + '' + (name || 'everyone') );
+        }
+        
+        var obj1 = new newObj(objHello, 'zzoon');
+        obj1.call();
+        
+    위 코드에서는 obj1.call() 을 실행하게 되면 newObj.prototype.who 함수가 호출되어 사용자가 원하는 결과인 'hello zzoon'을 출력한다.
+    
+    여기서 saySomethng() 함수는 <br/>
+    첫 번째 인자로 newObj 객체를<br/>
+    두 번째 인자로 사용자가 정의한 메서드 이름인 'who' 를<br/>
+    세 번째 인자로 사용자가 원하는 사람 이름 값 'zzoon' 을
+    
+    반환하는 값으로는 사용자가 정의한 newObj.prototype.who() 함수를 반환하는 helloFunc() 함수를 반환한다.
+    
+    이렇게 반환되는 함수가 HelloFunc 이 원하는 function(greeting) {} 형식의 함수가 되는데, 이것이 HelloFunc 객체의 func 로 참조된다.<br/>
+    obj1.call() 로 실행되는 것은 실질적으로 newObj.prototype.who() 가 된다.
+    
+    이러한 방식으로 사용자는 자신의 객체 메서드인 who 함수를 HelloFunc 에 연결시킬 수 있다.<br/>
+    이 코드의 클로저는 saySomething() 에서 반환되는 function(greeting) {} 이 되고,<br/>
+    이 클로저는 자유 변수 obj, methodName, name 을 참조한다.
+    
+    **앞 예제는 브라우저의 onclick, onmouseover 와 같은 프로퍼티에 해당 히벤트 핸들러를 사용자가 정의해 놓을 수가 있는데 이벤트 핸들러의 형식은 function(event) {} 이다.<br/>
+    이를 통해 브라우저는 발생한 이벤트를 event 인자로 사용자에게 넘겨주는 형식이다.<br/>
+    여기에 event 외의 원하는 인자를 더 추가한 이벤트 핸들러를 사용하고 싶을 때, 앞과 같은 방식으로 클로저를 적절히 활용해줄 수 있다.**  
+    
+2. 함수의 캡슐화
+
+자바스크립트에서 캡슐화는 다른 함수의 접근으로 쉽게 값이 바뀌고 실수로 같은 이름의 변수를 만들어 버그가 생기는 등의 문제를 행결하기 위해 사용된다.<br/>
+이런 문제를 해결하지 않으면 다른 JS 코드들과의 통합이나 라이브러리 제작 시에 문제를 야기할 수가 있다.
+
+    var buffAr = [
+        'I am ',
+        '',
+        ', I live in ',
+        '',
+        ', I\'am ',
+        '',
+        ', yaers old.'
+    ];
+    
+    function getCompletedStr(name, city, age) {
+        buffAr[1] = name;
+        buffAr[3] = city;
+        buffAr[5] = age;
+        
+        return buffAr.join('');
+    }          
+    
+    var str = getCompletedStr('zzoon', 'seoul', 16);
+    console.log(str);
+    
+위 코드는 캡슐화가 제대로 되지 못하는 예제이므로, buffAr 배열은 전역 변수로서, 외부에 노출되어 있다. 이를 클로저를 통해 코쳐보자.
+
+    var getCompletedStr = (function() {
+        var buffAr = [
+            'I am ',
+            '',
+            ', I live in ',
+            '',
+            ', I\'am ',
+            '',
+            ', yaers old.'
+        ];
+        
+        return (function getCompletedStr(name, city, age) {
+                   buffAr[1] = name;
+                   buffAr[3] = city;
+                   buffAr[5] = age;
+                   
+                   return buffAr.join('');
+               }); 
+    })();
+    
+    var str = getCompletedStr('zzoon', 'seoul', 16);
+    console.log(str);
+    
+가장 먼저 주의해서 봐야 할 점은 변수 getCompletedStr 에 익명 함수를 즉시 실행시켜 반환되는 함수를 할당하는 것이다.<br/>
+이 반환되는 함수가 클로저가 되고, 이 클로저는 자유 변수 buffAr 을 스코프 체인해서 참조할 수 있다.
+
+<img src="http://cfile4.uf.tistory.com/image/2626A24F56AB1F8B332EB7" style="max-width:100%;height:auto" width="673" height="512" filename="클로저 활용.png" filemime="image/jpeg" ""="">
+
+3) setTimeout() 에 지정되는 함수의 사용자 정의    
