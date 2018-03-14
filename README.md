@@ -1441,20 +1441,19 @@ Person.prototype.getName() 와 같이 메서드를 바로 호출하면,<br/>
  - 전역 코드
  - eval() 함수로 실행되는 코드
  - 함수 안의 코드를 실행 할 경우
- 
- 
-    console.log('This is global context');
-    
-    function ExContext1() {
-        console.log('This is ExContext1');
-    };
-    
-    function ExContext2() {
-        ExContext1();
-        console.log('This is Excontext2');
-    }; 
-    
-    ExContext2();
+
+        console.log('This is global context');
+        
+        function ExContext1() {
+            console.log('This is ExContext1');
+        };
+        
+        function ExContext2() {
+            ExContext1();
+            console.log('This is Excontext2');
+        }; 
+        
+        ExContext2();
     
 > 실행 컨텍스트 생성 과정
 
