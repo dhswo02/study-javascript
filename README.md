@@ -2002,5 +2002,25 @@ CSS 선택자로도 문서 객체를 선택할 수 있다.
             <h1 id='header_2'>Header</h1>
         </body>                    
         
-        
-        
+# 30. 문서 객체의 스타일 조작
+
+문서 객체의 style 속성을 사용하면 문서 객체의 스타일을 변경할 수 있다.
+```
+ window.onload = function() {
+    var header = document.getElementById('header');
+ }
+ 
+ header.style.border = '2px Solid Black';
+ header.style.color = 'Orange';
+ header.style.fontFamily = 'Helvetica';
+```
+
+자바스크립트에서는 '-'를 사용항 수 없으므로 낙타표기법(camelCase)으로 표현된 형태를 사용한다.
+
+background-img = backgroundImage
+background-color = backgroundColor
+
+문자열로 스타일 속성에 접근할 때 2가지 방법이 있다.
+
+document.body.style\['backgroundColor'\] = 'red'
+document.body.style\['background-color'\] = 'red'        
