@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script>
+		window.onload = function() {
+			var header = document.createElement('h1');
+			var textNode = document.createTextNode('Hello DOM');
+			// 노드 연결
+			header.appendChild(textNode);
+			document.body.appendChild(header);
+		};
+
+		window.onload = function() {
+			var img = document.createElement('img');
+			img.src = 'Penguins.jpg';
+			img.width = 500;
+			img.height = 350;
+
+			document.body.appendChild(img);
+    };
+
+		window.onload = function() {
+			var output = '';
+			output += '<ul>';
+			output += ' <li>JavaScript</li>';
+			output += ' <li>jQuery</li>';
+			output += ' <li>Ajax</li>';
+			output += '</ul>';
+
+			document.body.innerHTML = output;
+		};
+  </script>
+</head>
+
+<body>
+
+</body>
+</html>

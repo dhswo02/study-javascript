@@ -1780,4 +1780,227 @@ outerFunc 변수 객체의 프로퍼티 값은 여전히 읽기 및 쓰기까지
 
     <img src="http://cfile4.uf.tistory.com/image/2626A24F56AB1F8B332EB7" style="max-width:100%;height:auto" width="673" height="512" filename="클로저 활용.png" filemime="image/jpeg" ""="">
 
-3) setTimeout() 에 지정되는 함수의 사용자 정의    
+3) setTimeout() 에 지정되는 함수의 사용자 정의 
+    
+    setTimeout 함수는 웹 브라우저에서 제공하는 함수이다.<br/>
+    첫 번째 인자로 넘겨지는 함수 실행의 스케쥴링을 할 수 있다.<br/>
+    두 번째 인자인 밀리 초 단위 숫자만큼의 시간 간격으로 해당 함수를 호출한다.
+    
+        function callLater(obj, a, b) {
+            return (function() {
+                obj['sum'] = a + b;
+                console.log(obj['sum']);
+            });
+        }
+        
+        var sumObj = {
+            sum: 0
+        }
+        
+        var func = callLater(sumObj, 1, 2);
+        setTimeout(func, 500);
+     
+# 26. 클로저를 활용할 때 주의사항
+
+1. 클로저의 프로퍼티 값이 쓰기 가능하므로 그 값이 여러번 호출에 의해 항상 변할 수 있을에 유의해야 한다.
+
+        function outerFunc(argNum) {
+            var num = argNum;
+            return function(x) {
+                num += x;
+                console.log('num: ' + num);
+            }
+        }      
+        
+        var exam = outerFunc(40);
+        
+        exam(5);
+        exam(-10);
+        
+    exam(n) 이 여러번 호출됨에 따라, 자유 변수 num 의 값은 계속 변하니 주의하기 바란다.
+    
+2. 하나의 클로저가 여러 함수 객체의 스코프 체인에 들어가 있는 경우 유의
+
+        function func() {
+            var x = 1;
+            return {
+                func1: function() { console.log(++x); },
+                func2: function() { console.log(-x); }
+            };
+        }
+        
+        var exam = func();
+        exam.func1();
+        exam.func2();
+        
+    반환되는 객체에 2개의 함수가 정의되어 있는데, 두 함수 모두 자유 변수 x를 참조한다.<br/>
+    두 함수를 호출할 때마다 x 값이 변하므로 유의해야 한다.
+    
+3. 루프 안에서 클로저를 활용할 때는 주의
+
+        function countSeconds(howMany) {
+            for (var i = 1; i <= howMany; i++) {
+                setTimeout(function() {
+                    console.log(i);
+                }, i * 1000);
+            }
+        }            
+        countSeconds(3);
+    
+    1초 간격으로 출력을 의도하고 만들어진 예제이지만, 결과는 4가 연속 3번 1초 간격으로 출력된다.<br/>
+    setTimeout 함수가 실행되는 시점은 countSecondes() 함수의 실행이 종료된 이후이고, i 값은 이미 4가 된 상태이다.
+    
+    원하는 결과를 얻기 위해 아래와 같이 코드를 수정해 보았다.<br/>
+    
+        function countSeconds(howMany) {
+            for (var i = 1; i <= howMany; i++) {
+                (function (currentI) {
+                    setTimeout(function() {
+                        console.log(currentI);
+                    }, currentI * 100);
+                }(i));
+            }
+        }        
+        
+        countSeconds(3);
+        
+    즉시 실행 함수를 실행시켜 루프 i 값을 currentI 에 복사해서 setTimeout() 에 들어갈 함수에서 사용하면, 원하는 결과를 얻을 수 있다.        
+
+# 27. 문서 객체 모델
+
+문서 객체 모델은 넓은 의미로 웹 브라우저 HTML 페이지를 인식하는 방식이고 좁은 의미로는 document 객체와 관련된 객체의 집합이다.
+
+HTML 페이지를 트리 모양으로 나타낼 수 있으며, 각 요소를 '노드' 라고 부른다.
+
+노드는 '요소 노드(Element node)' 와 '텍스트 노드(Text node)' 로 구분할 수 있다.
+
+요소 노드: HTML 태그를 의미<br/>
+텍스트 노드: 요소 노드 안에 들어있는 글자를 의미
+
+웹 페이지가 처음 HTML 페이지에 적혀 있는 태그들을 읽으며 생성하는 것을 '정적으로 문서를 객체를 생성한다.' 라고 표현한다.<br/>
+페이지의 내용을 특별한 변화 없이 생성하기에 붙은 이름이다.<br/>
+반면 자바스크립트를 이용해 원래 HTML 페이지에는 없던 객체를 생성하는 것을 '동적으로 문서 객체를 생성한다.' 라고 표현한다.
+
+# 28. 문서 객체 만들기
+
+문서 객체는 가장 기본적으로 텍스트 노드를 같는 문서 객체와 텍스틑 노드를 갖지 않는 문서 객체로 구분할 수 있다.
+
+1. 텍스트 노드를 갖는 문서 객체 생성
+    
+    텍스트 노드를 갖는 문서 객체를 생성하려면 요소 노드와 텍스트 노드를 생성한 후에 텍스트 노드를 요소 노드에 붙여준다.<br/>
+    document 객체가 가지는 메서드를 사용해 요소 노드와 텍스트 노드를 생성할 수 있다.<br/>
+    화면에 문서 객체를 출력하려면 생성한 문서 객체를 body 문서 객체에 연결해야 한다. 또한 생성한 요소 노드와 텍스트 노드도 연결해야 한다.
+    
+    - createElement(tagName) : 요소 노드를 생성
+    - createTextNode(text) : 텍스트 노드를 생성
+    - appendChild(node) : 객체에 노드를 연결
+    
+    
+    window.onload = function() {
+        var header = document.createElement('h1');
+        var textNode = document.createTextNode('Hello DOM');
+        // 노드 연결
+        header.appendChild(textNode);
+        document.body.appendChild(header);
+    }
+
+2. 텍스트 노드를 갖지 않는 문서 객체 생성
+
+    텍스트 노드를 갖지 않는 대표적인 HTML 태그는 img 이다. img 태그는 텍스트 노드 대신에 많은 속성을 가지고 있는데, DOM 에서는 속성도 하나의 노드이다. 따라서, 노드를 생성해 요소 노드에 붙이는 것처럼 속성 노드를 생성해 요소 노드에 붙어야 한다.
+    
+        window.onload = function() {
+            var img = document.createElement('img');
+            img.src = img.jpg';
+            img.width = 500;
+            img.height = 350;
+            // 노드 연결
+            document.body.appendChild(img);
+        }    
+        
+    img 태그를 생성하고 body 문서 객체에 연결한다. img 태그에 이미지를 넣으려면 src 속성을 지정해야한다.<br/>
+    위 예제 코드와 같이 지정할 수 있다. 하지만, 방법은 웹 표준이 정의하거나 웹 브라우저가 지원하는 태그의 속성에만 사용할 수 있다.<br/>
+    웹 브라우저가 지원하지 않는 속성은 다음과 같은 메서드를 사용해야 속성을 넣을 수 있다.
+    
+    - setAttribute(name, value) : 객체의 속성을 지정
+    - getAttribute(name) : 객체의 속성을 가져온다.
+    
+        window.onload = function() {
+            var img = document.createElement('img');
+            img.setAttribute('src', 'img.jpg');
+            img.setAttribute('width', 500);
+            img.setAttribute('height', 350);
+            
+            // setAttribute() 메서드를 사용하지 않으면 불가능하다.
+            img.setAttribute('data-property', 350);
+            
+            document.body.appendChild(img);
+        }            
+
+3. 문서 객체의 innerHTML 속성
+
+    innerHTML 속성은 문자열을 선언하고 body 문서 객체의 innerHTML 속성에 넣기만 하면 문서 객체가 생성된다.
+    
+        window.onload = function() {
+            var output = '';
+            output += '<ul>';
+            output += ' <li>JavaScript</li>';
+            output += ' <li>jQuery</li>';
+            output += ' <li>Ajax</li>';
+            output += '</ul>';
+            
+            document.body.innerHTML = output;
+        }            
+        
+인터넷 익스플로러를 제외한 브라우저는 모든 문서 객체의 innerHTML 속성을 바꿀 수 있지만, 인터넷 익스플로러는 col, colgroup, head, html, style, table, tbody, tfoot, thead, title, tr 태그의 innerHTML 속성을 바꿀 수 없다. innerHTML 속성을 응용하면서 문서 객체를 생성하는 것 외에는 문서 객체를 수정하거나 삭제할 수도 있다.            
+
+# 29. 문서 객체 가져오기
+
+document 객체가 가지는 메서드를 사용하면 이미 웹 페이지에 존재하는 문서 객체를 가져올 수 있다.
+
+- getElementById(id) : 태그의 id 속성이 id 와 일치하는 문서 객체를 가져온다.
+
+        window.onload = function() {
+            var header1 = document.getElementById('header_1);
+            var header2 = document.getElementById('header_2);
+            
+            header1.innerHTML = 'with getElementById()';
+            header2.innerHTML = 'with getElementById()';
+        }
+
+  document 객체의 getElementById() 메서드는 한 번에 한 가지 문서 객체만 가져올 수 있다.<br/>
+  Elements 메서드를 사용하면 한 번에 여러 개의 문서 객체를 가져올 수 있다.
+  
+- getElementsByName(name) : 태그의 name 속성이 name 과 일치하는 문서 객체를 배열로 가져온다.
+- getElementsByTagName(tagName) : tagName 과 일치하는 문서 객체를 배열로 가져온다.
+
+        window.onload = function() {
+            var headers = document.getElementsByTagName('h1');
+            for(var i = 0; i < headers.length; i++) {
+                headers[i].innerHTML = 'With getElementsByTagName()';
+            }
+        }     
+  변수 headers 는 문서 객체를 가지는 배열이며, HTML 페이지의 h1 태그가 순서대로 들어간다.<br/>
+  headers 는 배열이므로 반복문을 사용할 수 있으며, 주의할 점은 for in 반복문을 사용해서는 안된다든 점이다.<br/>
+  for in 반복문을 사용하면 문서 객체 이외의 속성에도 접근하기 때문이다.<br/>
+  
+CSS 선택자로도 문서 객체를 선택할 수 있다.
+
+- document.querySelector(선택자) : 선택자로 가장 처음 선택되는 문서 객체를 가져온다.
+- document.querySelectorAll(선택자) : 선택자로 선택되는 문서 객체를 배열로 가져온다.
+        
+        <script>
+            window.onload = function() {
+                var header1 = document.querySelector('#header_1');
+                var header2 = document.querySelector('header_2');
+                
+                header1.innerHTML = 'with getElementById()';
+                header2.innerHTML = 'with getElementById()';
+            }
+        </script>
+        <body>
+            <h1 id='header_1'>Header</h1>
+            <h1 id='header_2'>Header</h1>
+        </body>                    
+        
+        
+        
