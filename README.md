@@ -1727,33 +1727,9 @@ outerFunc 변수 객체의 프로퍼티 값은 여전히 읽기 및 쓰기까지
     
 2. 함수의 캡슐화
 
-자바스크립트에서 캡슐화는 다른 함수의 접근으로 쉽게 값이 바뀌고 실수로 같은 이름의 변수를 만들어 버그가 생기는 등의 문제를 행결하기 위해 사용된다.<br/>
-이런 문제를 해결하지 않으면 다른 JS 코드들과의 통합이나 라이브러리 제작 시에 문제를 야기할 수가 있다.
+   자바스크립트에서 캡슐화는 다른 함수의 접근으로 쉽게 값이 바뀌고 실수로 같은 이름의 변수를 만들어 버그가 생기는 등의 문제를 행결하기 위해 사용된다.<br/>
+   이런 문제를 해결하지 않으면 다른 JS 코드들과의 통합이나 라이브러리 제작 시에 문제를 야기할 수가 있다.
 
-    var buffAr = [
-        'I am ',
-        '',
-        ', I live in ',
-        '',
-        ', I\'am ',
-        '',
-        ', yaers old.'
-    ];
-    
-    function getCompletedStr(name, city, age) {
-        buffAr[1] = name;
-        buffAr[3] = city;
-        buffAr[5] = age;
-        
-        return buffAr.join('');
-    }          
-    
-    var str = getCompletedStr('zzoon', 'seoul', 16);
-    console.log(str);
-    
-위 코드는 캡슐화가 제대로 되지 못하는 예제이므로, buffAr 배열은 전역 변수로서, 외부에 노출되어 있다. 이를 클로저를 통해 코쳐보자.
-
-    var getCompletedStr = (function() {
         var buffAr = [
             'I am ',
             '',
@@ -1763,22 +1739,46 @@ outerFunc 변수 객체의 프로퍼티 값은 여전히 읽기 및 쓰기까지
             '',
             ', yaers old.'
         ];
+    
+        function getCompletedStr(name, city, age) {
+            buffAr[1] = name;
+            buffAr[3] = city;
+            buffAr[5] = age;
+            
+            return buffAr.join('');
+        }          
         
-        return (function getCompletedStr(name, city, age) {
-                   buffAr[1] = name;
-                   buffAr[3] = city;
-                   buffAr[5] = age;
-                   
-                   return buffAr.join('');
-               }); 
-    })();
+        var str = getCompletedStr('zzoon', 'seoul', 16);
+        console.log(str);
     
-    var str = getCompletedStr('zzoon', 'seoul', 16);
-    console.log(str);
-    
-가장 먼저 주의해서 봐야 할 점은 변수 getCompletedStr 에 익명 함수를 즉시 실행시켜 반환되는 함수를 할당하는 것이다.<br/>
-이 반환되는 함수가 클로저가 되고, 이 클로저는 자유 변수 buffAr 을 스코프 체인해서 참조할 수 있다.
+    위 코드는 캡슐화가 제대로 되지 못하는 예제이므로, buffAr 배열은 전역 변수로서, 외부에 노출되어 있다. 이를 클로저를 통해 코쳐보자.
 
-<img src="http://cfile4.uf.tistory.com/image/2626A24F56AB1F8B332EB7" style="max-width:100%;height:auto" width="673" height="512" filename="클로저 활용.png" filemime="image/jpeg" ""="">
+        var getCompletedStr = (function() {
+            var buffAr = [
+                'I am ',
+                '',
+                ', I live in ',
+                '',
+                ', I\'am ',
+                '',
+                ', yaers old.'
+            ];
+            
+            return (function getCompletedStr(name, city, age) {
+                       buffAr[1] = name;
+                       buffAr[3] = city;
+                       buffAr[5] = age;
+                       
+                       return buffAr.join('');
+                   }); 
+        })();
+        
+        var str = getCompletedStr('zzoon', 'seoul', 16);
+        console.log(str);
+    
+    가장 먼저 주의해서 봐야 할 점은 변수 getCompletedStr 에 익명 함수를 즉시 실행시켜 반환되는 함수를 할당하는 것이다.<br/>
+    이 반환되는 함수가 클로저가 되고, 이 클로저는 자유 변수 buffAr 을 스코프 체인해서 참조할 수 있다.
+
+    <img src="http://cfile4.uf.tistory.com/image/2626A24F56AB1F8B332EB7" style="max-width:100%;height:auto" width="673" height="512" filename="클로저 활용.png" filemime="image/jpeg" ""="">
 
 3) setTimeout() 에 지정되는 함수의 사용자 정의    
