@@ -2024,3 +2024,18 @@ background-color = backgroundColor
 
 document.body.style\['backgroundColor'\] = 'red'
 document.body.style\['background-color'\] = 'red'        
+
+# 31. 문서 객체 제거
+
+문서 객체를 제거할 때는 문서 객체가 가지는 제거 메서드를 사용
+
+- removeChild(Child) : 문서 객체의 자식 노드를 제거
+
+    ```
+    window.onload = function() {
+        var willRemove = document.getElementById('will_remove');
+        
+        document.body.removeChild(willRemove);
+    }
+    ```
+    
