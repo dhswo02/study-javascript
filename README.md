@@ -2038,4 +2038,31 @@ document.body.style\['background-color'\] = 'red'
         document.body.removeChild(willRemove);
     }
     ```
+# 33. Event
+
+이벤트는 키보드로 키를 입력하거나 마우스 클릭과 같이 다른 것에 영향을 미치는 것을 의미<br/>
+
+- 마우스 이벤트
+- 키보드 이벤트
+- HTML 프레임 이벤트
+- HTML 입력 양식 이벤트
+- 유저 인터페이스 이벤트
+- 구조 변화 이벤트
+- 터치 이벤트
     
+window 객체의 onload 속성에 함수 자료형을 할당하는 것을 '이벤트를 연결한다.' 라고 한다.
+
+```aidl
+window.onload = function() {
+    var header = document.getElementById('header');
+    
+    function whenClick() { alert('CLICK'); }
+    header.onclock = whenClick;
+}
+```
+load 를 이벤트 이름(Event Name) 또는 이벤트 타입(Event Type) 이라고 하며 onload 를 이벤트 속성이라고 합니다.
+또한 이벤트 속성에 할당한 함수를 '핸들러' 라고 한다.
+
+문서 객체에 이벤트를 연결하는 방법을 이벤트 모델이라고 한다.
+
+# 34. 고전 이벤트 모델
