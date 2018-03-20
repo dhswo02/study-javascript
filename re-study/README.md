@@ -257,7 +257,7 @@ console.log(g());   // 3
 ```
 
 ***클로저는 비공개 내부 변수를 갖는 함수 인스턴스 생성자***이다.<br/>
-***클로저로 생성한 독립된 변수 공간을 가진 인스턴스***를 ==클로저 인슨터스==라고 한다.
+***클로저로 생성한 독립된 변수 공간을 가진 인스턴스***를 `클로저 인슨터스` 라고 한다.
 
 ### 객체를 생성하는 함수(생성자 함수)
 선언한 함수 내의 this는 새로 생성된 객체를 가리킨다.
@@ -323,4 +323,119 @@ var aaa = new A();  // 객체 생성
 aaa.getX(); // 7
 aaa.setX(0);    // 0 할당
 aaa.getX(); // 0
+```
+
+- - -
+
+## 객체(Object)란?
+자바스크립트는 객체(object)기반의 스크립트 언어이며 자바스크립트를 이루고 있는 거의 '모든 것'은 객체이다.<br/>
+기본자료형(Primitives)을 제외한 나머지 값들(함수, 배열, 정규표현식 등)은 모두 객체이다.
+
+#### 1.1 프로퍼티
+객체는 이름(name)과 값(value) (or key/value)의 쌍인 프로퍼티들을 포함하는 컨테이너라고 할 수 있다.
+
+- 프로퍼티 이름: 빈 문자열을 포함하는 문자열과 숫자
+- 프로퍼티 값: `undefined`을 제외한 모든 값
+
+#### 1.2 메소드(Method)
+메소드는 객체에 제한되어 있는 함수를 의미한다. 즉 프로퍼티 값이 함수일 경우, 일반 함수와 구분하기 위해 메소드라 칭한다.
+
+## 객체 생성 방법
+
+#### 2.1 객체 리터럴
+가장 일반적이고 간편한 자바스크립트 객체 생성 방식.
+
+중괄호({})를 사용하여 객체를 생성, {} 내에 아무것도 기술하디 않으면 빈 객체가 생성
+```aidl
+var emptyObject = {};
+console.log(typeof emptyObject);    // object
+
+var person = {
+    name: 'Lee',
+    gender: 'male',
+    sayHello: function() {
+        console.log('Hi! My name is ' + this.name);
+    }
+}
+
+console.log(typeof person); // object
+console.log(person); // { name: 'Lee', gender: 'male', sayHello: [Function: sayHello] }
+
+person.sayHello(); // Hi! My name is Lee
+```
+
+#### 2.2 Object() 생성자 함수
+new 연산자와 Object() 생성자 함수를 사용하여 빈 객체를 생성, 이후 프로퍼티와 메소드를 추가하여 객체를 완성하는 방법
+
+```aidl
+// 빈 객체 생성
+var person = new Object();
+// 프로퍼티 추가
+person.name = 'Lee';
+person.gender = 'male';
+person.sayHello = function () {
+  console.log('Hi! My name is ' + this.name);
+};
+
+console.log(typeof person); // object
+console.log(person); // { name: 'Lee', gender: 'male', sayHello: [Function] }
+
+person.sayHello(); // Hi! My name is Lee
+```
+반드시 new 연산자와 Object() 생성자 함수를 사용하여 빈객체를 생성해야 하는 것은 아닌다. 객체를 생성하는 방법은 객체 리터럴을 사용하는 것이 더 간편하다.
+```aidl
+var person = {};
+person.name = 'Lee';
+person.gender = 'male';
+person.sayHello = function () {
+  console.log('Hi! My name is ' + this.name);
+};
+```
+
+Object() 생성자 함수 방식은 특별한 이유가 없다면 그다지 유용해 보이지 않는다. 하지만 객체 리터럴 방식으로 생성된 객체는 결국 내장(Built-in) 함수인 Object() 생성자 함수로 객체를 생성하는 것을 단순화 시킨 short-hand(축약법)이다. 자바스크립트 엔진은 객체 리터럴로 객체를 생성하는 코드를 만나면 내부적으로 Object() 생성자 함수를 사용하여 객체를 생성한다.
+
+#### 2.3 생성자 함수
+객체 리터럴 방식과 Object() 생성자 함수 방식으로 객체를 생성하는 것은 프로퍼티 값만 다른 여러개의 객체 생성에 불편이 있다. 동일한 프로퍼티를 갖는 객체임에도 불구하고 매번 같은 프로퍼티를 기술해야한다.
+
+```aidl
+var person1 = {
+    name: 'Lee',
+    gender: 'male'm
+    sayHello: function() {
+        console.log('Hi! My name is ' + this.name);
+    }
+};
+
+var perseon2 = {
+    name: 'Kim',
+    gender: 'female',
+    sayHello: function() {
+        console.log('Hi! My name is ' + this.name);
+    }
+}
+```
+
+생성자 함수를 사용하면 마치 객체를 생성하기 위한 템플릿(클래스)처럼 사용하여 구성이 동일한 객체 여러개를 간편하게 생성할 수 있다.
+
+```aidl
+// 생성자 함수
+function Person(name, gender) {
+    this.name = name;
+    this.gender = gender;
+    this.sayHello = function() {
+        console.log('Hi! My name is ' + this.name);
+    }
+}
+
+// 인스턴트 생성
+var person1 = new Person('Lee', 'male');
+var person2 = new Person('Kim', 'female');
+
+console.log('person1: ', typeof person1);
+console.log('person2: ', typeof person2);
+console.log('person1: ', person1);
+console.log('person2: ', person2);
+
+person1.sayHello();
+person2.sayHello();
 ```
