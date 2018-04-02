@@ -51,4 +51,5 @@ while (count <= 10) {
 	} else {
 		console.info(inputArray.join('') + ': ' + strike + '스트라이크 ' + ball + '볼');
 	}
+	console.info(count-1 + '번째 시도중입니다.')
 }
